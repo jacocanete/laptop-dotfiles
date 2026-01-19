@@ -1,0 +1,15 @@
+[credential "https://github.com"]
+	helper =
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !/usr/bin/gh auth git-credential
+[user]
+	name = jacocanete
+	email = jacogagarincanete@gmail.com
+	signingkey = ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAk0LD2qgmJPenblp046Wt8fFFqaVoGHBOU26sRpLMYE
+[gitbutler]
+	aiModelProvider = anthropic
+
+[includeIf "gitdir:~/Projects/digitalimpulse/"]
+    path = ~/.config/git/digitalimpulse/donfig

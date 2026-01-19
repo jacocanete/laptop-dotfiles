@@ -115,7 +115,7 @@ source /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 
 # Custom prompt with git branch
-PROMPT='%{$fg[green]%}%~%{$reset_color%}$(git_prompt_info) %# '
+PROMPT='%{$fg[green]%}%1~%{$reset_color%} $(git_prompt_info)%{$reset_color%} %# '
 
 eval "$(zellij setup --generate-auto-start zsh)"
 export PATH="$PATH:$HOME/.local/bin"
@@ -143,3 +143,8 @@ if [ -d "$FNM_PATH" ]; then
   export PATH="$FNM_PATH:$PATH"
   eval "`fnm env`"
 fi
+
+export PATH="/home/jacocanete/.lando/bin:$PATH"; #landopath
+
+# Bitwarden SSH Agent socket, since we installed it using flatpak we use SSH_AUTH_SOCK
+export SSH_AUTH_SOCK=~/.var/app/com.bitwarden.desktop/data/.bitwarden-ssh-agent.sock

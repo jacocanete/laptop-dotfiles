@@ -1,9 +1,3 @@
-[credential "https://github.com"]
-	helper =
-	helper = !/usr/bin/gh auth git-credential
-[credential "https://gist.github.com"]
-	helper =
-	helper = !/usr/bin/gh auth git-credential
 [user]
 	name = jacocanete
 	email = jacogagarincanete@gmail.com
@@ -14,8 +8,25 @@
 
 [commit]
 	gpgsign = true
-[gitbutler]
-	aiModelProvider = anthropic
 
 [includeIf "gitdir:~/Projects/digitalimpulse/"]
-    path = ~/.config/git/digitalimpulse/donfig
+    path = ~/.config/git/digitalimpulse/config
+
+[init]
+	defaultBranch = main
+
+[url "git@personalgit:jacocanete/"]
+	# git clone jc:gnaritas
+	insteadOf = "jc:"
+
+[url "git@workgit:digitalimpulse/"]
+	# git clone di:wp-theme-smpd
+	insteadOf = "di:"
+
+[url "git@personalgit:"]
+	# git clone personal:jacocanete/gnaritas
+	insteadOf = "personal:"
+
+[url "git@workgit:"]
+	# git clone work:digitalimpulse/wp-theme-smpd
+	insteadOf = "work:"

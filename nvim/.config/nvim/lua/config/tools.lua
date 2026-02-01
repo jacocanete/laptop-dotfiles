@@ -1,13 +1,17 @@
 -- lua/config/tools.lua
 
 local function is_deno_project(filename)
-  local util = require "lspconfig.util"
-  return util.root_pattern("deno.json", "deno.jsonc")(filename)
+  return vim.fs.root(filename, { "deno.json", "deno.jsonc" })
+end
+
+local function is_node_project(filename)
+  return vim.fs.root(filename, { "package.json", "tsconfig.json", "jsconfig.json" })
 end
 
 return {
   -- Utility functions
   is_deno_project = is_deno_project,
+  is_node_project = is_node_project,
 
   -- Formatters (used by conform.nvim)
   formatters = {
@@ -54,17 +58,26 @@ return {
     --
     -- But for many setups, the LSP (`ts_ls`) will work just fine
     denols = {
-      root_dir = function(fname) return is_deno_project(fname) end,
-      single_file_support = false,
+      root_dir = function(bufnr, on_dir)
+        local fname = vim.api.nvim_buf_get_name(bufnr)
+        local root = is_deno_project(fname)
+        if root then
+          on_dir(root)
+        end
+      end,
     },
     ts_ls = {
       filetypes = { "typescript", "javascript", "javascriptreact", "typescriptreact", "vue" },
-      root_dir = function(fname)
-        local util = require "lspconfig.util"
-        if is_deno_project(fname) then return nil end
-        return util.root_pattern("package.json", "tsconfig.json", "jsconfig.json", ".git")(fname)
+      root_dir = function(bufnr, on_dir)
+        local fname = vim.api.nvim_buf_get_name(bufnr)
+        if is_deno_project(fname) then
+          return -- Don't attach in deno projects
+        end
+        local root = is_node_project(fname) or vim.fs.root(fname, { ".git" })
+        if root then
+          on_dir(root)
+        end
       end,
-      single_file_support = false,
       init_options = {
         plugins = {
           {
@@ -80,25 +93,7 @@ return {
       },
     },
     intelephense = {
-      filetypes = {
-        "php",
-      },
-      -- root_dir = function(fname)
-      -- 	local util = require("lspconfig.util")
-      --
-      -- 	-- Check if we're inside wp-content (themes, plugins, etc.)
-      -- 	if string.find(fname, "/wp-content/") then
-      -- 		-- Extract the site root (~/Local Sites/[wp-theme]/)
-      -- 		local site_root = string.match(fname, "(.*/Local Sites/[^/]+)")
-      -- 		if site_root then
-      -- 			return site_root
-      -- 		end
-      -- 	end -- Fall back to default root detection
-      -- 	local git_root = vim.fs.find(".git", { path = fname, upward = true })[1]
-      -- 	return util.root_pattern("composer.json", ".git", "wp-config.php")(fname)
-      -- 		or (git_root and vim.fs.dirname(git_root))
-      -- 		or vim.fs.dirname(fname)
-      -- end,
+      filetypes = { "php" },
       settings = {
         intelephense = {
           files = {
@@ -125,26 +120,6 @@ return {
         },
       },
     },
-    -- cssls = {
-    --   capabilities = {
-    --     documentFormattingProvider = false,
-    --     documentRangeFormattingProvider = false,
-    --   },
-    --   settings = {
-    --     css = {
-    --       validate = true,
-    --       lint = {
-    --         unknownAtRules = 'ignore',
-    --       },
-    --     },
-    --     scss = {
-    --       validate = false,
-    --       lint = {
-    --         unknownAtRules = 'ignore',
-    --       },
-    --     },
-    --   },
-    -- },
     somesass_ls = {
       capabilities = {
         documentFormattingProvider = false,
@@ -159,7 +134,13 @@ return {
         },
       },
       filetypes = { "css", "scss" },
-      root_dir = function(...) return require("lspconfig.util").root_pattern("package.json", ".git")(...) end,
+      root_dir = function(bufnr, on_dir)
+        local fname = vim.api.nvim_buf_get_name(bufnr)
+        local root = vim.fs.root(fname, { "package.json", ".git" })
+        if root then
+          on_dir(root)
+        end
+      end,
     },
     emmet_language_server = {
       filetypes = {
